@@ -6,10 +6,10 @@ class Motion:
     def __init__(self):                  
                     print("Motion Detection Object Created")    
                     #input file name of video
-                    self.inname= 'C:\Users\Ben\Desktop\MotionMeerkatTest\garcon_test.avi'
+                    self.inname= 'C:/Users/Ben/Desktop/MotionMeerkatTest/garcon_test.avi'
     
                     #file name to save
-                    self.outname = "C:\MotionMeerkat"
+                    self.outname = "C:/MotionMeerkat"
     
     def prep(self):
         
@@ -36,19 +36,18 @@ class Motion:
             if not ret:
                 break
             fgmask = fgbg.apply(frame)
-            cv2.accumulate(fgmask,self.accumulator)
+            cv2.accumulateSquare(fgmask,self.accumulator)
     def write(self):
-        cv2.convertScaleAbs(self.accumulator)  
-        acc_col = cv2.applyColorMap(self.accumulator,cv2.COLORMAP_JET)                
+        
+        self.abs=cv2.convertScaleAbs(self.accumulator)  
+        acc_col = cv2.applyColorMap(self.abs,cv2.COLORMAP_JET)                
         cv2.imwrite(str(self.outname + "/heatmap.jpg"),acc_col)
         
         #add to original frame
-        col=cv2.cvtColor(acc_col,cv2.COLOR_GRAY2RGB)                        
-        backg = cv2.addWeighted(col,0.2,self.orig_image,0.8,0)
+        backg = cv2.addWeighted(np.array(acc_col,dtype='uint8'),0.25,self.orig_image,0.75,0)
         
         cv2.imwrite(str(self.outname + "/heatmap_background.jpg"),backg)
         
-
 #==================
 # MAIN ENTRY POINT
 #==================
