@@ -30,21 +30,27 @@ class Motion:
                 
     def run(self):
         cap = cv2.VideoCapture(self.inname)
-        fgbg = cv2.createBackgroundSubtractorMOG2(varThreshold=60)
+        fgbg = cv2.createBackgroundSubtractorMOG2(varThreshold=80,detectShadows=False)
         while(1):
             ret, frame = cap.read()
             if not ret:
                 break
             fgmask = fgbg.apply(frame)
-            cv2.accumulateSquare(fgmask,self.accumulator)
+            self.accumulator=self.accumulator+fgmask
     def write(self):
         
-        self.abs=cv2.convertScaleAbs(self.accumulator)  
-        acc_col = cv2.applyColorMap(self.abs,cv2.COLORMAP_JET)                
+        self.ab=cv2.convertScaleAbs(255-np.array(self.accumulator,'uint8'))  
+        
+        #only get reasonable high values, above mean
+        ret,self.acc_thresh=cv2.threshold(self.ab,self.ab.mean(),255,cv2.THRESH_TOZERO)
+        
+        #make a color map
+        acc_col = cv2.applyColorMap(self.acc_thresh,cv2.COLORMAP_HOT)
+        
         cv2.imwrite(str(self.outname + "/heatmap.jpg"),acc_col)
         
         #add to original frame
-        backg = cv2.addWeighted(np.array(acc_col,dtype='uint8'),0.25,self.orig_image,0.75,0)
+        backg = cv2.addWeighted(np.array(acc_col,"uint8"),0.45,self.orig_image,0.55,0)
         
         cv2.imwrite(str(self.outname + "/heatmap_background.jpg"),backg)
         
