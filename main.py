@@ -15,10 +15,7 @@ class Motion:
         
         #just read the first frame to get height and width
         cap = cv2.VideoCapture(self.inname)     
-        
-        #uncomment this line and comment the one above if you want to read from webcam
-        #cap = cv2.VideoCapture(0)     
-        
+                
         ret,self.orig_image = cap.read()
         width = np.size(self.orig_image, 1)
         height = np.size(self.orig_image, 0)
